@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  name          String?
+  clerkId       String          @unique
+  role          Role            @default(USER)
+  knowledgeBases KnowledgeBase[]
+  chats         Chat[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model KnowledgeBase {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  documents   Document[]
+  chats       Chat[]
+  widgetConfig Json?      // Settings for the embeddable widget
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Document {
+  id              String        @id @default(uuid())
+  name            String
+  type            String        // PDF, TXT
+  knowledgeBaseId String
+  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id])
+  chunks          Chunk[]
+  createdAt       DateTime      @default(now())
+}
+
+model Chunk {
+  id         String   @id @default(uuid())
+  content    String
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  embedding  Unsupported("vector(1536)")? // OpenAI embedding dimension
+  createdAt  DateTime @default(now())
+
+  @@index([documentId])
+}
+
+model Chat {
+  id              String         @id @default(uuid())
+  title           String?
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  knowledgeBaseId String
+  knowledgeBase   KnowledgeBase  @relation(fields: [knowledgeBaseId], references: [id])
+  shareId         String?        @unique @default(uuid())
+  isPublic        Boolean        @default(false)
+  messages        Message[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  role      String   // user, assistant
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sources   Json?    // Array of { documentName, chunkId }
+  sentiment String?  // Positive, Neutral, Negative
+  sentimentScore Float? // Value for charting
+  createdAt DateTime @default(now())
+}

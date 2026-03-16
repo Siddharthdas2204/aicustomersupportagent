@@ -1,0 +1,7 @@
+The SupportAI platform is a state-of-the-art RAG system.
+It uses OpenAI for embeddings and GPT-4o for generation.
+Users can upload PDFs and TXT files.
+The system stores data in PostgreSQL with pgvector.
+This is a test document for verification purposes.
+Key feature: Fast streaming responses.
+Key feature: Secure data retrieval.
