@@ -1,12 +1,10 @@
 const pdf = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { RecursiveCharacterTextSplitter } = require('@langchain/textsplitters');
-const { OpenAIEmbeddings } = require('@langchain/openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const embeddings = new OpenAIEmbeddings({
-  openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: 'text-embedding-3-small',
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const embeddingModel = genAI.getGenerativeModel({ model: "text-embedding-004" });
 
 /**
  * Process a document: parse text, split into chunks, and generate embeddings.
@@ -20,7 +18,7 @@ const processDocument = async (buffer, type) => {
   if (type === 'application/pdf') {
     const data = await pdf(buffer);
     text = data.text;
-  } else if (type === 'text/plain') {
+  } else if (type === 'text/plain' || type === 'text/markdown') {
     text = buffer.toString('utf-8');
   } else if (['image/jpeg', 'image/png', 'image/jpg'].includes(type)) {
     const { data: { text: ocrText } } = await Tesseract.recognize(buffer, 'eng');
@@ -29,7 +27,7 @@ const processDocument = async (buffer, type) => {
     throw new Error(`Unsupported file type: ${type}`);
   }
 
-  // Clean text a bit
+  // Clean text
   text = text.replace(/\s+/g, ' ').trim();
 
   // Split into chunks
@@ -40,13 +38,13 @@ const processDocument = async (buffer, type) => {
 
   const docs = await splitter.createDocuments([text]);
   
-  // Generate embeddings for each chunk
+  // Generate embeddings for each chunk using Gemini
   const chunksWithEmbeddings = await Promise.all(
     docs.map(async (doc) => {
-      const embedding = await embeddings.embedQuery(doc.pageContent);
+      const result = await embeddingModel.embedContent(doc.pageContent);
       return {
         content: doc.pageContent,
-        embedding
+        embedding: result.embedding.values
       };
     })
   );

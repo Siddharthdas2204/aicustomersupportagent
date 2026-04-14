@@ -38,12 +38,14 @@ const DashboardLayout = ({ children, toggleDarkMode, isDarkMode }) => {
   const location = useLocation()
   const { user } = useUser()
   
-  // Demo admin check - in real app would use Clerk metadata or custom DB role
-  const isAdmin = user?.publicMetadata?.role === 'admin' || user?.emailAddresses[0]?.emailAddress?.includes('admin')
+  // Secure admin check - Only the specific owner or users with explicit 'admin' role metadata
+  const isAdmin = user?.publicMetadata?.role === 'admin' || 
+                  user?.emailAddresses[0]?.emailAddress === 'siddharthdas2204@gmail.com'
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
     { icon: MessageSquare, label: 'Recent Chats', href: '/chats' },
+    { icon: Plus, label: 'Upload Files', href: '/upload' },
     ...(isAdmin ? [{ icon: BarChart3, label: 'Admin Analytics', href: '/admin' }] : []),
     { icon: Settings, label: 'Settings', href: '/settings' },
   ]

@@ -136,6 +136,27 @@ router.patch('/:chatId/share', async (req, res) => {
   }
 });
 
+// Get a single chat with messages
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const chat = await prisma.chat.findUnique({
+      where: { id },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'asc' }
+        },
+        knowledgeBase: true
+      }
+    });
+
+    if (!chat) return res.status(404).json({ error: 'Chat not found' });
+    res.json(chat);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Get a shared chat (Public)
 router.get('/shared/:shareId', async (req, res) => {
   try {

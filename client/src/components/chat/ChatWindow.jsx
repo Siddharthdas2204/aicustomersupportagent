@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Bot, User, Sparkles, Copy, ThumbsUp, RotateCcw, Search, Mic, MicOff, Share2 } from 'lucide-react'
+import { Send, Bot, User, Sparkles, Copy, ThumbsUp, RotateCcw, Search, Mic, MicOff, Share2, Loader2 } from 'lucide-react'
 import { cn } from '../../utils/cn'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -103,15 +103,36 @@ const Message = ({ message, onCitationClick }) => {
   )
 }
 
-const ChatWindow = ({ knowledgeBaseId, onCitationClick }) => {
+const ChatWindow = ({ knowledgeBaseId, onCitationClick, initialChatId }) => {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello! I am your AI Knowledge Assistant. Ask me anything about this knowledge base.', createdAt: new Date() }
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [chatId, setChatId] = useState(null)
+  const [chatId, setChatId] = useState(initialChatId)
+  const [loading, setLoading] = useState(false)
   const scrollRef = useRef(null)
+
+  useEffect(() => {
+    const fetchChatMessages = async () => {
+      if (!initialChatId) return
+      setLoading(true)
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/${initialChatId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setMessages(data.messages)
+          setChatId(data.id)
+        }
+      } catch (error) {
+        console.error('Error fetching chat messages:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchChatMessages()
+  }, [initialChatId])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -246,13 +267,20 @@ const ChatWindow = ({ knowledgeBaseId, onCitationClick }) => {
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-50/30 dark:bg-slate-950/30"
       >
-        {messages.map((msg, idx) => (
-          <Message 
-            key={idx} 
-            message={msg} 
-            onCitationClick={onCitationClick} 
-          />
-        ))}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            <p className="text-sm font-medium italic">Resuming your conversation...</p>
+          </div>
+        ) : (
+          messages.map((msg, idx) => (
+            <Message 
+              key={idx} 
+              message={msg} 
+              onCitationClick={onCitationClick} 
+            />
+          ))
+        )}
       </div>
 
       {/* Input */}

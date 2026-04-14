@@ -114,7 +114,26 @@ const UserDashboard = () => {
     }
   }
 
-  const recentChats = [] // Will implement when chat API is ready
+  const [recentChats, setRecentChats] = useState([])
+
+  const fetchRecentChats = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/user/${user.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setRecentChats(data.slice(0, 5)) // Get last 5 chats
+      }
+    } catch (error) {
+      console.error('Error fetching chats:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      fetchKBs()
+      fetchRecentChats()
+    }
+  }, [user])
 
   if (loading) {
     return (
@@ -224,11 +243,25 @@ const UserDashboard = () => {
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold dark:text-white font-outfit">Recent Chats</h2>
-            <Clock className="w-5 h-5 text-slate-400" />
+            <Link to="/chats" className="text-xs font-bold text-primary-600 hover:underline">View All</Link>
           </div>
-          <div className="glass-card p-8 text-center">
-            <MessageSquare className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-            <p className="text-slate-500 text-sm italic">No recent chats found.</p>
+          <div className="space-y-4">
+            {recentChats.map(chat => (
+              <Link key={chat.id} to={`/kb/${chat.knowledgeBaseId}?chatId=${chat.id}`} className="block">
+                <div className="glass-card p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-l-4 border-primary-500">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate">{chat.title || 'Untitled Chat'}</h4>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{chat.knowledgeBase?.name}</span>
+                    <span className="text-[10px] text-slate-400">{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {recentChats.length === 0 && (
+              <div className="glass-card p-8 text-center text-slate-500 text-sm italic">
+                No recent chats found.
+              </div>
+            )}
           </div>
 
           <div className="p-6 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-700 text-white shadow-xl shadow-primary-500/20 relative overflow-hidden">

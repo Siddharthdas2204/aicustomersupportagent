@@ -7,6 +7,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import KnowledgeBasePage from './pages/dashboard/KnowledgeBasePage'
 import ChatsPage from './pages/dashboard/ChatsPage'
 import SettingsPage from './pages/dashboard/SettingsPage'
+import UploadPage from './pages/dashboard/UploadPage'
 import SharedChatPage from './pages/public/SharedChatPage'
 import WidgetView from './pages/public/WidgetView'
 import DashboardLayout from './components/layout/DashboardLayout'
@@ -85,6 +86,12 @@ function App() {
         <Route path="/chats" element={
           <ProtectedRoute toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode}>
             <ChatsPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/upload" element={
+          <ProtectedRoute toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode}>
+            <UploadPage />
           </ProtectedRoute>
         } />
 

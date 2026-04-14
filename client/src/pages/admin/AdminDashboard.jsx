@@ -15,16 +15,21 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { cn } from '../../utils/cn'
 
+import { useState, useEffect } from 'react'
+import { useAuth } from '@clerk/clerk-react'
+
 const AnalyticCard = ({ label, value, trend, icon: Icon, color }) => (
   <div className="glass-card p-6">
     <div className="flex items-center justify-between mb-4">
       <div className={`p-3 rounded-2xl ${color}`}>
         <Icon className="w-6 h-6 text-white" />
       </div>
-      <div className={cn("flex items-center gap-1 text-sm font-bold", trend > 0 ? "text-green-500" : "text-red-500")}>
-        <TrendingUp className={cn("w-4 h-4", trend < 0 && "rotate-180")} />
-        {Math.abs(trend)}%
-      </div>
+      {trend !== undefined && (
+        <div className={cn("flex items-center gap-1 text-sm font-bold", trend >= 0 ? "text-green-500" : "text-red-500")}>
+          <TrendingUp className={cn("w-4 h-4", trend < 0 && "rotate-180")} />
+          {Math.abs(trend)}%
+        </div>
+      )}
     </div>
     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">{label}</p>
     <h3 className="text-3xl font-bold dark:text-white font-outfit">{value}</h3>
@@ -32,11 +37,44 @@ const AnalyticCard = ({ label, value, trend, icon: Icon, color }) => (
 )
 
 const AdminDashboard = () => {
-  const users = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'User', uploads: 12, chats: 45, status: 'Active' },
-    { id: '2', name: 'Alice Smith', email: 'alice@company.io', role: 'User', uploads: 5, chats: 12, status: 'Active' },
-    { id: '3', name: 'Bob Wilson', email: 'bob@tech.com', role: 'Admin', uploads: 28, chats: 156, status: 'Inactive' },
-  ]
+  const { getToken, userId } = useAuth()
+  const [data, setData] = useState({
+    users: [],
+    chats: [],
+    analytics: { totals: {}, activity: [] }
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const headers = { 
+          'x-clerk-user-id': userId,
+        }
+        
+        const [usersRes, analyticsRes, chatsRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/analytics`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/chats`, { headers })
+        ])
+
+        if (usersRes.ok && analyticsRes.ok && chatsRes.ok) {
+          const users = await usersRes.json()
+          const analytics = await analyticsRes.json()
+          const chats = await chatsRes.json()
+          setData({ users, analytics, chats })
+        }
+      } catch (error) {
+        console.error('Admin fetch error:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (userId) fetchData()
+  }, [userId])
+
+  if (loading) return <div className="flex items-center justify-center min-h-[400px]">Loading Admin Data...</div>
 
   return (
     <div className="max-w-7xl mx-auto space-y-12">
@@ -48,10 +86,10 @@ const AdminDashboard = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnalyticCard label="Total Users" value="2,482" trend={12} icon={Users} color="bg-blue-600 shadow-blue-500/30" />
-        <AnalyticCard label="Global API Calls" value="1.2M" trend={8.4} icon={Activity} color="bg-primary-600 shadow-primary-500/30" />
-        <AnalyticCard label="Satisfaction Rate" value="94%" trend={3.2} icon={Smile} color="bg-pink-600 shadow-pink-500/30" />
-        <AnalyticCard label="System Uptime" value="99.99%" trend={0.01} icon={ShieldCheck} color="bg-green-600 shadow-green-500/30" />
+        <AnalyticCard label="Total Users" value={data.analytics.totals.users || 0} icon={Users} color="bg-blue-600 shadow-blue-500/30" />
+        <AnalyticCard label="Knowledge Bases" value={data.analytics.totals.knowledgeBases || 0} icon={Activity} color="bg-primary-600 shadow-primary-500/30" />
+        <AnalyticCard label="Total Documents" value={data.analytics.totals.documents || 0} icon={Smile} color="bg-pink-600 shadow-pink-500/30" />
+        <AnalyticCard label="Total Chats" value={data.analytics.totals.chats || 0} icon={ShieldCheck} color="bg-green-600 shadow-green-500/30" />
       </div>
 
       <div className="glass-card p-8">
@@ -133,15 +171,15 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {users.map(u => (
+                  {data.users.map(u => (
                     <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-indigo-100 dark:from-primary-900/40 dark:to-indigo-900/40 flex items-center justify-center font-bold text-primary-600">
-                            {u.name.charAt(0)}
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-indigo-100 dark:from-primary-900/40 dark:to-indigo-900/40 flex items-center justify-center font-bold text-primary-600 text-sm">
+                            {(u.name?.[0] || u.email?.[0] || '?').toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-bold text-slate-900 dark:text-white">{u.name}</p>
+                            <p className="font-bold text-slate-900 dark:text-white">{u.name || 'Anonymous'}</p>
                             <p className="text-xs text-slate-500">{u.email}</p>
                           </div>
                         </div>
@@ -149,16 +187,13 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 text-sm font-medium dark:text-slate-300">{u.role}</td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase">{u.uploads} Uploads</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase">{u.chats} Chats</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase">{u._count?.knowledgeBases || 0} KBs</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase">{u._count?.chats || 0} Chats</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={cn(
-                          "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight",
-                          u.status === 'Active' ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                        )}>
-                          {u.status}
+                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500">
+                          Active
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -224,6 +259,37 @@ const AdminDashboard = () => {
                 Optimize Database
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Platform Chat History */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold dark:text-white font-outfit">Platform Chat History</h2>
+        <div className="glass-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">User</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Knowledge Base</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Last Message</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {data.chats.map(chat => (
+                  <tr key={chat.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4 text-sm font-bold dark:text-white">{chat.user?.email}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500">{chat.knowledgeBase?.name}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500 truncate max-w-md">
+                      {chat.messages?.[chat.messages.length - 1]?.content || 'No messages'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-400">{new Date(chat.updatedAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

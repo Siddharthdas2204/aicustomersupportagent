@@ -52,7 +52,7 @@ model Chunk {
   content    String
   documentId String
   document   Document @relation(fields: [documentId], references: [id])
-  embedding  Unsupported("vector(1536)")? // OpenAI embedding dimension
+  embedding  Unsupported("vector(768)")? // Gemini embedding dimension (text-embedding-004)
   createdAt  DateTime @default(now())
 
   @@index([documentId])

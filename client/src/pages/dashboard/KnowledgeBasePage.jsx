@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Upload, 
@@ -12,9 +12,11 @@ import {
   CheckCircle2,
   FileText,
   Loader2,
-  X
+  X,
+  Sparkles
 } from 'lucide-react'
 import ChatWindow from '../../components/chat/ChatWindow'
+import AntigravityChat from '../../components/chat/AntigravityChat'
 import { cn } from '../../utils/cn'
 import { useAuth } from '@clerk/clerk-react'
 
@@ -50,6 +52,7 @@ const KnowledgeBasePage = () => {
   const [loading, setLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [activeCitation, setActiveCitation] = useState(null)
+  const [isAntigravityMode, setIsAntigravityMode] = useState(true)
 
   const fetchKB = async () => {
     try {
@@ -127,6 +130,9 @@ const KnowledgeBasePage = () => {
     return <div className="text-center p-20 text-slate-500">Knowledge Base not found.</div>
   }
 
+  const [searchParams] = useSearchParams()
+  const initialChatId = searchParams.get('chatId')
+
   return (
     <div className="max-w-7xl mx-auto">
       <header className="mb-10 flex items-center justify-between">
@@ -145,9 +151,23 @@ const KnowledgeBasePage = () => {
           </div>
         </div>
         
-        <button className="p-3 glass hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all">
-          <MoreVertical className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsAntigravityMode(!isAntigravityMode)}
+            className={cn(
+              "px-4 py-2 rounded-2xl font-bold text-xs flex items-center gap-2 transition-all",
+              isAntigravityMode 
+                ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg shadow-cyan-500/20" 
+                : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800"
+            )}
+          >
+            <Sparkles className={cn("w-4 h-4", isAntigravityMode ? "animate-spin-slow" : "")} />
+            {isAntigravityMode ? "ANTIGRAVITY ON" : "ANTIGRAVITY OFF"}
+          </button>
+          <button className="p-3 glass hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all">
+            <MoreVertical className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-8 items-start">
@@ -227,10 +247,19 @@ const KnowledgeBasePage = () => {
           "transition-all duration-500",
           activeCitation ? "xl:col-span-2" : "xl:col-span-3"
         )}>
-          <ChatWindow 
-            knowledgeBaseId={id} 
-            onCitationClick={(citation) => setActiveCitation(citation)}
-          />
+          {isAntigravityMode ? (
+            <AntigravityChat 
+              knowledgeBaseId={id} 
+              initialChatId={initialChatId}
+              onCitationClick={(citation) => setActiveCitation(citation)}
+            />
+          ) : (
+            <ChatWindow 
+              knowledgeBaseId={id} 
+              initialChatId={initialChatId}
+              onCitationClick={(citation) => setActiveCitation(citation)}
+            />
+          )}
         </div>
 
         {/* Split Screen Citation Viewer */}

@@ -9,7 +9,7 @@ async function enableVector() {
   try {
     await client.connect();
     console.log('Connected to database. Enabling vector extension...');
-    await client.query('CREATE EXTENSION IF NOT EXISTS vector;');
+    await client.query('CREATE EXTENSION IF NOT EXISTS vector SCHEMA public;');
     console.log('Success: pgvector extension enabled.');
   } catch (err) {
     console.error('Error enabling pgvector extension:', err);

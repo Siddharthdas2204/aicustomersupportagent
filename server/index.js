@@ -17,6 +17,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Routes
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
@@ -27,6 +33,7 @@ app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/knowledge-bases', require('./routes/kbRoutes'));
 app.use('/api/widget', require('./routes/widgetRoutes'));
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 app.listen(PORT, () => {
   console.log(`[server]: AI Support Agent Backend running on port ${PORT}`);
