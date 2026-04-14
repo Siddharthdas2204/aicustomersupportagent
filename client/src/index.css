@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 0%;
+    --foreground: 210 40% 98%;
   }
 
   .dark {
@@ -16,35 +16,52 @@
   }
 
   body {
-    @apply font-sans antialiased text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300;
+    @apply font-sans antialiased text-white bg-slate-950 transition-colors duration-300 overflow-x-hidden;
     font-family: 'Inter', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
     font-family: 'Outfit', sans-serif;
   }
 }
 
 @layer components {
+  .aurora-bg {
+    @apply relative overflow-hidden bg-slate-950;
+  }
+
+  .aurora-bg::before {
+    content: '';
+    @apply absolute -inset-[10%] opacity-50 blur-[100px] pointer-events-none;
+    background: radial-gradient(circle at 20% 30%, theme('colors.aurora.teal') 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, theme('colors.aurora.purple') 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, theme('colors.aurora.indigo') 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, theme('colors.aurora.pink') 0%, transparent 30%);
+    animation: aurora-drift 20s ease-in-out infinite alternate;
+  }
+
   .glass {
-    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/50 shadow-xl;
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] saturate-150;
   }
   
   .glass-card {
-    @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-lg;
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl transition-all duration-300 hover:bg-white/10;
   }
 
-  .btn-primary {
-    @apply px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium transition-all active:scale-95 shadow-lg shadow-primary-500/20;
+  .btn-aurora {
+    @apply px-8 py-3.5 rounded-2xl bg-gradient-to-br from-aurora-teal/80 to-aurora-purple/80 text-white font-bold 
+           transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl shadow-aurora-teal/20 
+           hover:shadow-aurora-teal/40 backdrop-blur-md border border-white/20;
   }
-  
-  .btn-secondary {
-    @apply px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium transition-all active:scale-95;
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-aurora-teal via-aurora-purple to-aurora-pink;
   }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -52,9 +69,10 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-800 rounded-full;
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400 dark:bg-slate-700;
+@keyframes aurora-drift {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(5deg) scale(1.1); }
 }

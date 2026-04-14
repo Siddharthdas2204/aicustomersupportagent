@@ -102,165 +102,110 @@ const AntigravityChat = ({ knowledgeBaseId, initialChatId, onCitationClick }) =>
   }
 
   return (
-    <div className="relative w-full h-[800px] overflow-hidden rounded-[40px] bg-slate-950 flex items-center justify-center p-8 font-outfit">
-      {/* Cosmic Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        {floatingOrbs.map(orb => (
-          <motion.div
-            key={orb.id}
-            animate={{
-              x: [orb.x + '%', (orb.x + 10) + '%', orb.x + '%'],
-              y: [orb.y + '%', (orb.y + 15) + '%', orb.y + '%'],
-            }}
-            transition={{
-              duration: orb.duration,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute rounded-full blur-[100px] opacity-20"
-            style={{
-              width: orb.size,
-              height: orb.size,
-              background: orb.id % 2 === 0 ? 'radial-gradient(circle, #0ea5e9 0%, transparent 70%)' : 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)',
-              left: orb.x + '%',
-              top: orb.y + '%'
-            }}
-          />
-        ))}
-        {/* Star Particles */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-      </div>
+    <div className="relative w-full h-[850px] overflow-hidden rounded-[3rem] bg-slate-950 flex items-center justify-center p-6 font-outfit border border-white/5">
+      {/* Aurora Background Layer */}
+      <div className="absolute inset-0 aurora-bg opacity-30"></div>
 
       {/* Main Glass Panel */}
       <motion.div 
         layout
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className={cn(
-          "relative z-10 w-full max-w-4xl h-full flex flex-col rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden",
-          "bg-white/5 backdrop-blur-3xl saturate-150",
-          "before:absolute before:inset-0 before:p-[1px] before:rounded-[2.5rem] before:bg-gradient-to-br before:from-cyan-400/50 before:to-purple-500/50 before:-z-10"
+          "relative z-10 w-full max-w-5xl h-full flex flex-col rounded-[2.5rem] glass shadow-2xl overflow-hidden",
+          "before:absolute before:inset-0 before:p-[1px] before:rounded-[2.5rem] before:bg-gradient-to-br before:from-aurora-teal/30 before:to-aurora-purple/30 before:-z-10"
         )}
       >
         {/* Holographic Header */}
-        <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between bg-white/5">
-          <div className="flex items-center gap-4">
+        <div className="px-10 py-8 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-3xl">
+          <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-500 p-0.5 animate-pulse">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-aurora-teal to-aurora-purple p-0.5 animate-pulse">
                 <div className="w-full h-full rounded-2xl bg-slate-900 flex items-center justify-center">
-                  <Bot className="w-6 h-6 text-cyan-400" />
+                  <Bot className="w-7 h-7 text-aurora-teal" />
                 </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 animate-bounce"></div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 shadow-[0_0_10px_#22c55e]"></div>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">Antigravity AI</h2>
-              <p className="text-xs font-bold text-cyan-400/70 uppercase tracking-widest">Quantum Engine Active</p>
+              <h2 className="text-2xl font-black text-white tracking-tighter">Antigravity AI</h2>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-aurora-teal animate-ping"></span>
+                <p className="text-[10px] font-bold text-aurora-teal/70 uppercase tracking-[0.2em]">Neural Engine V2.0 Active</p>
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Sync: Locked</span>
-            </div>
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 transition-all active:scale-95"
+              className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 border border-white/10 transition-all active:scale-95"
             >
               {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Floating Icons (Orbiting Effect) */}
-        {!isExpanded && (
-           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-             {[Share2, Settings, Copy, Search].map((Icon, idx) => (
-                <motion.div
-                  key={idx}
-                  animate={{
-                    x: [0, 20, -20, 0],
-                    y: [0, -20, 20, 0],
-                    rotate: [0, 360],
-                  }}
-                  transition={{
-                    duration: 10 + idx * 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="absolute pointer-events-auto cursor-pointer p-3 rounded-2xl bg-white/10 border border-white/20 text-cyan-400/50 hover:text-cyan-400 hover:bg-white/20 transition-all shadow-xl backdrop-blur-md"
-                  style={{
-                    left: 20 + idx * 20 + '%',
-                    top: 10 + idx * 10 + '%'
-                  }}
-                >
-                  <Icon className="w-5 h-5" />
-                </motion.div>
-             ))}
-           </div>
-        )}
-
         {/* Message Matrix */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8"
+          className="flex-1 overflow-y-auto p-10 custom-scrollbar space-y-10"
         >
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-full gap-6">
+            <div className="flex flex-col items-center justify-center h-full gap-8">
               <div className="relative">
-                <Loader2 className="w-12 h-12 text-cyan-500 animate-spin" />
-                <div className="absolute inset-0 blur-xl bg-cyan-500/50 animate-pulse"></div>
+                <div className="w-20 h-20 rounded-full border-4 border-aurora-teal/20 border-t-aurora-teal animate-spin"></div>
+                <div className="absolute inset-0 blur-2xl bg-aurora-teal/30 animate-pulse"></div>
               </div>
-              <p className="text-sm font-bold text-cyan-400 uppercase tracking-[0.2em] animate-pulse">Decrypting Connection...</p>
+              <p className="text-sm font-black text-aurora-teal uppercase tracking-[0.4em] animate-pulse">Synchronizing Neural Path...</p>
             </div>
           ) : (
             messages.map((msg, idx) => (
               <motion.div
-                initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 key={idx}
                 className={cn(
-                  "flex gap-6 group",
+                  "flex gap-8 group",
                   msg.role === 'user' ? "flex-row-reverse" : "flex-row"
                 )}
               >
                 <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl backdrop-blur-xl border border-white/10",
-                  msg.role === 'assistant' ? "bg-cyan-500/20 text-cyan-400" : "bg-purple-500/20 text-purple-400"
+                  "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl backdrop-blur-3xl border border-white/10",
+                  msg.role === 'assistant' ? "bg-aurora-teal/20 text-aurora-teal" : "bg-aurora-purple/20 text-aurora-purple"
                 )}>
                   {msg.role === 'assistant' ? <Bot className="w-6 h-6" /> : <User className="w-6 h-6" />}
                 </div>
 
                 <div className={cn(
-                  "max-w-[75%] flex flex-col",
+                  "max-w-[80%] flex flex-col",
                   msg.role === 'user' ? "items-end" : "items-start"
                 )}>
                   <div className={cn(
-                    "p-6 rounded-[2rem] shadow-2xl backdrop-blur-2xl border border-white/10 prose prose-invert max-w-none transition-all",
+                    "p-7 rounded-[2.5rem] shadow-2xl backdrop-blur-3xl border border-white/10 prose prose-invert max-w-none transition-all hover:border-white/20",
                     msg.role === 'assistant' 
-                      ? "bg-slate-900/40 text-slate-100 rounded-tl-none border-l-cyan-500/50" 
-                      : "bg-gradient-to-br from-purple-600/40 to-indigo-700/40 text-white rounded-tr-none border-r-purple-500/50"
+                      ? "bg-slate-900/60 text-slate-100 rounded-tl-none border-l-aurora-teal" 
+                      : "bg-gradient-to-br from-aurora-purple/40 to-indigo-700/40 text-white rounded-tr-none border-r-aurora-purple/50"
                   )}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content}
                     </ReactMarkdown>
                     {msg.isTyping && (
-                      <div className="flex gap-2 mt-4">
-                        <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></span>
-                        <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                      <div className="flex gap-2 mt-6">
+                        <span className="w-2 h-2 bg-aurora-teal rounded-full animate-bounce"></span>
+                        <span className="w-2 h-2 bg-aurora-teal rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                        <span className="w-2 h-2 bg-aurora-teal rounded-full animate-bounce [animation-delay:0.4s]"></span>
                       </div>
                     )}
                   </div>
                   
                   {msg.sources && (
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-5 flex flex-wrap gap-3">
                        {msg.sources.map((src, i) => (
                          <button 
                           key={i}
                           onClick={() => onCitationClick?.(src)}
-                          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-white/10 text-[10px] font-bold text-cyan-400 uppercase tracking-widest transition-all"
+                          className="px-4 py-2 rounded-xl bg-white/5 hover:bg-aurora-teal/20 border border-white/10 text-[10px] font-black text-aurora-teal uppercase tracking-widest transition-all"
                          >
                            {src.documentName}
                          </button>
@@ -274,65 +219,46 @@ const AntigravityChat = ({ knowledgeBaseId, initialChatId, onCitationClick }) =>
         </div>
 
         {/* Holographic Input Matrix */}
-        <div className="p-8 bg-white/5 border-t border-white/10">
+        <div className="p-10 bg-white/5 backdrop-blur-3xl border-t border-white/10">
           <div className="relative group">
-            {/* Glowing Orbit around Input */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-[2rem] opacity-20 blur group-focus-within:opacity-40 transition-opacity"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-aurora-teal to-aurora-purple rounded-[2.5rem] opacity-20 blur-xl group-focus-within:opacity-40 transition-opacity"></div>
             
             <textarea 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder="Input query for the AI Nexus..."
+              placeholder="Query the Matrix..."
               rows={1}
               className={cn(
-                "relative w-full pl-8 pr-32 py-5 rounded-[2rem] bg-slate-900/60 border border-white/10 outline-none transition-all resize-none",
-                "text-white font-medium placeholder:text-slate-500 focus:bg-slate-900/80"
+                "relative w-full pl-10 pr-36 py-6 rounded-[2.5rem] bg-slate-900/80 border border-white/10 outline-none transition-all resize-none shadow-inner",
+                "text-white font-medium placeholder:text-slate-500 focus:bg-slate-900/95 focus:border-aurora-teal/50"
               )}
             />
             
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
               <button 
-                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 transition-all active:scale-95"
+                className="p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 border border-white/10 transition-all active:scale-95"
               >
                 <Mic className="w-5 h-5" />
               </button>
               <button 
                 onClick={handleSend}
                 disabled={!input.trim() || isTyping}
-                className="p-4 bg-gradient-to-br from-cyan-500 to-purple-600 text-white rounded-2xl shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all font-bold group"
+                className="p-5 bg-gradient-to-br from-aurora-teal to-aurora-purple text-white rounded-2xl shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all font-bold group border border-white/20"
               >
                 <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <Sparkles className="w-3 h-3 text-cyan-400" />
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Core Intelligence Synchronized (Gemini Ultra)</p>
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <Sparkles className="w-3 h-3 text-aurora-teal animate-pulse" />
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Quantum Core Synced</p>
           </div>
         </div>
       </motion.div>
-      
-      {/* Floating Orbital Avatar Orb */}
-      <motion.div
-        animate={{
-          y: [-20, 20, -20],
-          rotate: 360
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        className="absolute bottom-20 right-20 w-32 h-32 pointer-events-none"
-      >
-        <div className="w-full h-full rounded-full bg-cyan-500/20 border border-cyan-400/30 blur-sm animate-pulse"></div>
-        <div className="absolute inset-4 rounded-full bg-purple-500/20 border border-purple-400/30 blur-md animate-pulse [animation-delay:1s]"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_20px_#fff] animate-ping"></div>
-        </div>
-      </motion.div>
     </div>
+  )
+}
   )
 }
 
