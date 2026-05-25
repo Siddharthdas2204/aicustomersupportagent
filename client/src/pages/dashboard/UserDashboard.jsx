@@ -106,9 +106,13 @@ const UserDashboard = () => {
         setNewKbName('')
         setShowModal(false)
         fetchKBs()
+      } else {
+        const errData = await response.json().catch(() => ({ error: 'Unknown server error' }))
+        alert(`Failed to create KB: ${errData.error || response.statusText}`)
       }
     } catch (error) {
       console.error('Error creating KB:', error)
+      alert(`Network error: Could not connect to the server. Please ensure the backend is running.`)
     } finally {
       setCreating(false)
     }

@@ -259,7 +259,5 @@ const AntigravityChat = ({ knowledgeBaseId, initialChatId, onCitationClick }) =>
     </div>
   )
 }
-  )
-}
 
 export default AntigravityChat
