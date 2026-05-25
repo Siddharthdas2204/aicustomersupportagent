@@ -40,7 +40,8 @@ const DashboardLayout = ({ children, toggleDarkMode, isDarkMode }) => {
   
   // Secure admin check - Only the specific owner or users with explicit 'admin' role metadata
   const isAdmin = user?.publicMetadata?.role === 'admin' || 
-                  user?.emailAddresses[0]?.emailAddress === 'siddharthdas2204@gmail.com'
+                  user?.emailAddresses[0]?.emailAddress === 'siddharthdas2204@gmail.com' ||
+                  user?.emailAddresses[0]?.emailAddress === 'shyama23013@gmail.com'
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/' },

@@ -11,7 +11,8 @@ const isAdmin = async (req, res, next) => {
   const user = await prisma.user.findUnique({ where: { clerkId } });
   const isOwner = user && (
     user.role === 'ADMIN' || 
-    user.email === 'siddharthdas2204@gmail.com'
+    user.email === 'siddharthdas2204@gmail.com' ||
+    user.email === 'shyama23013@gmail.com'
   );
 
   if (isOwner) {
