@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ai-support-backend
+    env: node
+    region: oregon
+    buildCommand: cd server && npm install && npx prisma generate
+    startCommand: cd server && node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false # You will need to paste your Prisma connection string in the Render dashboard!
+      - key: FRONTEND_URL
+        value: https://aicustomersupportagent.vercel.app
